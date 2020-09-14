@@ -1,5 +1,6 @@
 import React, {useEffect , useState} from 'react';
 import './App.css';
+import useFetch from "./components/useFetch";
 // import Hello from "./components/Hello";
 
 function App() {
@@ -21,7 +22,10 @@ const [values, setValues] = useState({
 // Till now all was basic now lets learn some use cases and make regular apps using it 
 // 1. Events
 // 2. Having multiple useEffect on a component and they fireoff in order
-// 3. Fetch from an API
+// 3. Fetch from an API url along 
+// 4. to change data when API url changes
+// 5. useeffect can be called infinite times if we mistakly call a dependency to be changed in useeffect fn
+// 6. Local Storage localStorage.setItem('itemname', itemvalue); and localStorage.getItem(itemName);
 
 // useEffect(() => {
 //      console.log("render");
@@ -30,24 +34,31 @@ const [values, setValues] = useState({
 //      };     
 //   }, [values.password, values.firstName]);
 
-  useEffect(() => {
-    function onMouseOver(e){
-      console.log(e);
-    }
-    window.addEventListener("mouseover",onMouseOver);
-    console.log("mounted");
-    //control will stay here until component is unmounted and keep listening for event
-    return ()=> {
-      window.removeEventListener("mouseover",onMouseOver);
-    };
-  },[]);
+  // useEffect(() => {
+  //   function onMouseOver(e){
+  //     console.log(e);
+  //   }
+  //   window.addEventListener("mouseover",onMouseOver);
+  //   console.log("mounted");
+  //   //control will stay here until component is unmounted and keep listening for event
+  //   return ()=> {
+  //     window.removeEventListener("mouseover",onMouseOver);
+  //   };
+  // },[]);
 
+  // useEffect(() => {
+  //     console.log("useEffect 2 called");      
+  //   return () => {
+  //     console.log("unmounted");
+  //    }
+  // },[]);
+
+  const [count, setCount]= useState(() => JSON.parse(localStorage.getItem("count")));
+  const {data, loading}=  useFetch('http://numberapi.com/'+count+'/trivia/');
+  
   useEffect(() => {
-      console.log("useEffect 2 called");      
-    return () => {
-      console.log("unmounted");
-     }
-  },[]);
+    localStorage.setItem("count", JSON.stringify(count));
+  },[count]);
 
   function changeValues(event){
     const {name ,value}= event.target;
@@ -62,6 +73,9 @@ const [values, setValues] = useState({
       <header>
       <h1>Learn Useeffect</h1>
       </header>
+      <div> {loading ? <h4>"data is loading"</h4> : <h4>{data}</h4> } </div>
+      <button onClick={() => setCount(count+1)}>Increase</button>
+      <button onClick={() => setCount(count-1)}>Decrease</button>
       {/* <button onClick={ () => setShowHello(!showHello)} >Toggle</button>
       {showHello && <Hello />} */}
         <input type="text" placeholder="firstName" name="firstName" value={values.firstName} onChange={changeValues} /> 
